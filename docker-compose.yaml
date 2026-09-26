@@ -338,5 +338,19 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
+  warehouse-postgres:
+    image: postgres:16-alpine
+    container_name: delivery_risk_warehouse
+    environment:
+      POSTGRES_DB: delivery_risk_db
+      POSTGRES_USER: delivery_risk_user
+      POSTGRES_PASSWORD: DeliveryRiskPass123
+    volumes:
+      - warehouse_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5431:5430"
+
 volumes:
   postgres-db-volume:
+  warehouse_pgdata:
+
