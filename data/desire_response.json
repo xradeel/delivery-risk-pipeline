@@ -1,0 +1,31 @@
+{
+    # Metadata & Geographic Dimension
+    "timestamp_utc": "2026-09-25T15:29:00Z",
+    "city": "New York",
+    "lat": 40.7128,
+    "lon": -74.0060,
+    # Weather Metrics
+    "weather_condition": "Clouds",
+    "weather_desc": "overcast clouds",
+    "temp_c": 12.1,
+    "humidity_pct": 62,
+    "visibility_meters": 10000,
+    "wind_speed_mps": 4.7,
+    "wind_gust_mps": 9.9,
+    "precipitation_mm": 0.0,
+    # Traffic Metrics (TomTom)
+    "current_speed_kmh": 18,
+    "free_flow_speed_kmh": 26,
+    "speed_ratio": 0.69,  # 0.69 means traffic is moving at 69% of normal
+    "delay_pct": 41.7,  # Travel time is 41.7% longer than free flow
+    "road_class": "FRC4",  # Local connecting road
+    "is_road_closed": False,
+    "traffic_confidence": 1.0,
+    # Air Quality Metrics (WAQI)
+    "aqi": 3,  # Good (0-50)
+    "primary_pollutant": "pm25",
+    "pm25_value": 3.0,
+    # Calendar Context (Nager.Date)
+    "is_holiday": False,
+    "holiday_name": None,
+}

@@ -1,0 +1,14 @@
+.venv/
+.env
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+airflow/
+logs/
+
+data/raw/*
+data/processed/*
+
+*.pyc
+.DS_Store
