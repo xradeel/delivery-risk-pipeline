@@ -1,6 +1,14 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow.sdk import dag, task
 
+from utils.data_ops import DataOps
+from src.clients.aqi import AQIClient
+from src.clients.tomtom import TomTomClient
+from src.clients.open_weather import OpenWeatherClient
+from src.clients.negar_holidays import NegarHolidaysClient
+from src.validations.validates import validate_all_inputs
+
+from src.transformations.transformer import DeliveryRiskTransformer
 
 
 @dag(
@@ -13,23 +21,31 @@ def delivery_risk_dag():
 
     @task
     def fetch_traffic(lon, lat):
-        from src.clients.tomtom import TomTomClient
-        return TomTomClient.call(lat, lon)
+        response = TomTomClient.call(lat, lon)
+        path = DataOps().save_json(response, is_processed=False, api_name="traffic")
+        return path
 
     @task
     def fetch_aqi(lon, lat):
-        from src.clients.aqi import AQIClient
-        return AQIClient.call(lat, lon)
+        response = AQIClient.call(lat, lon)
+        path = DataOps().save_json(response, is_processed=False, api_name="aqi")
+        return path
 
     @task
     def fetch_weather(lon, lat):
-        from src.clients.open_weather import OpenWeatherClient
-        return OpenWeatherClient.call(lat, lon)
+        response = OpenWeatherClient.call(lat, lon)
+        path = DataOps().save_json(response, is_processed=False, api_name="weather")
+        return path
 
     @task
     def fetch_holidays(country_code, year):
-        from src.clients.negar_holidays import NegarHolidaysClient
-        return NegarHolidaysClient.call(country_code, year)
+        response = NegarHolidaysClient.call(country_code, year)
+        path = DataOps().save_json(response, is_processed=False, api_name="holidays")
+        return path
+
+    @task
+    def validate_data(traffic_path, aqi_path, weather_path, holidays_path):
+        return validate_all_inputs(traffic_path, aqi_path, weather_path, holidays_path)
 
 
     #new york coordinates
@@ -40,6 +56,20 @@ def delivery_risk_dag():
     aqi_data = fetch_aqi(lon, lat)
     weather_data = fetch_weather(lon, lat)
     holidays_data = fetch_holidays("US", 2023)
+
+    validated_data = validate_data(traffic_data, aqi_data, weather_data, holidays_data)
+
+    transformed_data = DeliveryRiskTransformer.transform(
+        lat=lat,
+        lon=lon,
+        weather_path=weather_data,
+        traffic_path=traffic_data,
+        aqi_path=aqi_data,
+        holidays_path=holidays_data,
+        target_date=(datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    )
+    
+    
 
 
 delivery_risk_dag()
