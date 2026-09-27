@@ -1,9 +1,7 @@
-```markdown
+
 # Urban Logistics Risk Intelligence Pipeline
 
 An automated data engineering pipeline orchestrated by **Apache Airflow 3 (Task SDK)** that monitors real-time environmental and infrastructure friction indicators, persists operational telemetry into a **PostgreSQL** warehouse, and generates actionable, AI-driven dispatch advisories using **Google Gemini**.
-
-```
 
 ---
 
