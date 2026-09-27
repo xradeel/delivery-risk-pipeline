@@ -18,7 +18,7 @@ class GeminiClient:
   def get_model_config(self) -> types.GenerateContentConfig:
     return types.GenerateContentConfig(
         system_instruction=SYSTEM_INSTRUCTION,
-        temperature=0.2,  # Low temperature for deterministic, operational decisions
+        temperature=0.1,
         response_mime_type="application/json",
         response_schema=DeliveryInsightContract,
     )

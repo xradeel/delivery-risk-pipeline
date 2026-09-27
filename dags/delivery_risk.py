@@ -10,6 +10,7 @@ from src.validations.validates import validate_all_inputs
 
 from src.transformations.transformer import DeliveryRiskTransformer
 from src.loaders.delivery_risk import DeliveryRiskRepository
+from src.llm_insights import DeliveryInsightGenerator
 
 
 @dag(
@@ -64,23 +65,21 @@ def delivery_risk_dag():
         record_id = DeliveryRiskRepository.create(processed_path)
         return record_id
 
-    @task
+    @task(
+        retries=3,
+        retry_delay=timedelta(seconds=5),
+    )
     def generate_insights_task(fact_record_id: str, processed_data_path: str):
-        from src.llm_insights import DeliveryInsightGenerator
-        from src.utils.data_ops import DataOps
-
-        # Read the normalized telemetry
-        telemetry_payload = DataOps().read_json(processed_data_path)
-
-        # Generate and persist insight
+        telemetry = DataOps().read_json(processed_data_path)
         generator = DeliveryInsightGenerator()
-        insight_id = generator.generate_and_save_insight(
-            risk_record_id=fact_record_id, telemetry_payload=telemetry_payload
+
+        # Generate, persist to DB, and return payload
+        insight_id, insight_data = generator.generate_and_save_insight(
+            risk_record_id=fact_record_id, telemetry_payload=telemetry
         )
 
-        return str(insight_id)
-
-
+        # Returning dict pushes directly to XCom for UI inspection
+        return insight_data
     #new york coordinates
     lon = -74.0060
     lat = 40.7128
