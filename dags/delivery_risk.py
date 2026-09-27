@@ -64,6 +64,22 @@ def delivery_risk_dag():
         record_id = DeliveryRiskRepository.create(processed_path)
         return record_id
 
+    @task
+    def generate_insights_task(fact_record_id: str, processed_data_path: str):
+        from src.llm_insights import DeliveryInsightGenerator
+        from src.utils.data_ops import DataOps
+
+        # Read the normalized telemetry
+        telemetry_payload = DataOps().read_json(processed_data_path)
+
+        # Generate and persist insight
+        generator = DeliveryInsightGenerator()
+        insight_id = generator.generate_and_save_insight(
+            risk_record_id=fact_record_id, telemetry_payload=telemetry_payload
+        )
+
+        return str(insight_id)
+
 
     #new york coordinates
     lon = -74.0060
@@ -80,6 +96,8 @@ def delivery_risk_dag():
     transformed_data = transform_task(weather_data, traffic_data, aqi_data, holidays_data)
 
     record_id = load_task(transformed_data)
+
+    insights_id = generate_insights_task(record_id, transformed_data)
 
 
 delivery_risk_dag()
