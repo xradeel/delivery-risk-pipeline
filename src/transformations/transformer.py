@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
-from utils.data_ops import DataOps
+from src.utils.data_ops import DataOps
 
 
 class DeliveryRiskTransformer:
@@ -147,5 +147,5 @@ class DeliveryRiskTransformer:
             # Calendar Context
             **holiday_metrics,
         }
-        processed_path = DataOps.save_json(result, is_processed=True)
+        processed_path = DataOps().save_json(data=result, is_processed=True)
         return processed_path

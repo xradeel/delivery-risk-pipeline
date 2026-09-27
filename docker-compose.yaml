@@ -348,7 +348,13 @@ services:
     volumes:
       - warehouse_pgdata:/var/lib/postgresql/data
     ports:
-      - "5431:5430"
+      - "5433:5432"  # Host port 5433 -> Container port 5432 (avoids conflict if 5432 is used)
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U delivery_risk_user -d delivery_risk_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
 
 volumes:
   postgres-db-volume:

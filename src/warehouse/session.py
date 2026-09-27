@@ -8,7 +8,7 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 load_dotenv()
 
 DATABASE_URL = URL.create(
-    drivername="postgresql",
+    drivername="postgresql+psycopg2",
     username=os.getenv("WAREHOUSE_USER"),
     password=os.getenv("WAREHOUSE_PASSWORD"),
     host=os.getenv("WAREHOUSE_HOST"),

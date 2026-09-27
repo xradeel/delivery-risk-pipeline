@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import ValidationError
-from utils.data_ops import DataOps
+from src.utils.data_ops import DataOps
 from src.validations.schemas.api_models import (
     OpenWeatherRawResponse,
     TomTomRawResponse,

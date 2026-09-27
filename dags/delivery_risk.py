@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from airflow.sdk import dag, task
 
-from utils.data_ops import DataOps
+from src.utils.data_ops import DataOps
 from src.clients.aqi import AQIClient
 from src.clients.tomtom import TomTomClient
 from src.clients.open_weather import OpenWeatherClient
@@ -45,7 +45,18 @@ def delivery_risk_dag():
 
     @task
     def validate_data(traffic_path, aqi_path, weather_path, holidays_path):
-        return validate_all_inputs(traffic_path, aqi_path, weather_path, holidays_path)
+        return validate_all_inputs(traffic_path=traffic_path, aqi_path=aqi_path, weather_path=weather_path, holidays_path=holidays_path)
+
+    @task
+    def transform_task(weather_path, traffic_path, aqi_path, holidays_path):
+        return DeliveryRiskTransformer.transform(
+            lat=lat,
+            lon=lon,
+            weather_path=weather_path,
+            traffic_path=traffic_path,
+            aqi_path=aqi_path,
+            holidays_path=holidays_path,
+        )
 
 
     #new york coordinates
@@ -55,21 +66,12 @@ def delivery_risk_dag():
     traffic_data = fetch_traffic(lon, lat)
     aqi_data = fetch_aqi(lon, lat)
     weather_data = fetch_weather(lon, lat)
-    holidays_data = fetch_holidays("US", 2023)
+    holidays_data = fetch_holidays("US", 2026)
 
     validated_data = validate_data(traffic_data, aqi_data, weather_data, holidays_data)
 
-    transformed_data = DeliveryRiskTransformer.transform(
-        lat=lat,
-        lon=lon,
-        weather_path=weather_data,
-        traffic_path=traffic_data,
-        aqi_path=aqi_data,
-        holidays_path=holidays_data,
-        target_date=(datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
-    )
-    
-    
+
+    transformed_data = transform_task(weather_data, traffic_data, aqi_data, holidays_data)
 
 
 delivery_risk_dag()

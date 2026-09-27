@@ -6,7 +6,7 @@ load_dotenv()
 class NegarHolidaysClient:
 
     @staticmethod
-    def call(country_code="US", year=2023):
+    def call(country_code="US", year=2026):
 
         url = f"{os.getenv('NegarHolidays_Base_URL')}/{country_code}/{year}"
         response = requests.get(url)
