@@ -9,6 +9,7 @@ from src.clients.negar_holidays import NegarHolidaysClient
 from src.validations.validates import validate_all_inputs
 
 from src.transformations.transformer import DeliveryRiskTransformer
+from src.loaders.delivery_risk import DeliveryRiskRepository
 
 
 @dag(
@@ -58,6 +59,11 @@ def delivery_risk_dag():
             holidays_path=holidays_path,
         )
 
+    @task
+    def load_task(processed_path):
+        record_id = DeliveryRiskRepository.create(processed_path)
+        return record_id
+
 
     #new york coordinates
     lon = -74.0060
@@ -72,6 +78,8 @@ def delivery_risk_dag():
 
 
     transformed_data = transform_task(weather_data, traffic_data, aqi_data, holidays_data)
+
+    record_id = load_task(transformed_data)
 
 
 delivery_risk_dag()
